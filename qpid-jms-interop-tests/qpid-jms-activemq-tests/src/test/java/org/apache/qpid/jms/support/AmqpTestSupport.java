@@ -117,8 +117,7 @@ public class AmqpTestSupport extends QpidJmsTestSupport {
 
     public URI getBrokerAmqpConnectionURI() {
         try {
-            String uri = "amqp://127.0.0.1:" +
-                brokerService.getTransportConnectorByName("amqp").getPublishableConnectURI().getPort();
+            String uri = "amqp://127.0.0.1:5672";
 
             if (!getAmqpConnectionURIOptions().isEmpty()) {
                 uri = uri + "?amqp.traceFrames=" + isFrameTracingEnabled() + "&" + getAmqpConnectionURIOptions();
