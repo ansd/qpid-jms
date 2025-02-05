@@ -31,6 +31,7 @@ import jakarta.jms.MessageConsumer;
 import jakarta.jms.MessageProducer;
 import jakarta.jms.Session;
 import jakarta.jms.TemporaryQueue;
+import jakarta.jms.TemporaryTopic;
 import jakarta.jms.TextMessage;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -53,30 +54,35 @@ public class Client {
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 
             //Create a temporary queue and consumer to receive responses, and a producer to send requests.
-            TemporaryQueue responseQueue = session.createTemporaryQueue();
-            MessageConsumer messageConsumer = session.createConsumer(responseQueue);
-            MessageProducer messageProducer = session.createProducer(queue);
+            // TemporaryQueue responseQueue = session.createTemporaryQueue();
+            TemporaryTopic responseTopic = session.createTemporaryTopic();
+            MessageConsumer messageConsumer = session.createConsumer(responseTopic);
+            Thread.sleep(500000);
+            // responseQueue.delete();
+            
+            //MessageConsumer messageConsumer = session.createConsumer(responseQueue);
+            //MessageProducer messageProducer = session.createProducer(queue);
 
-            //Send some requests and receive the responses.
-            String[] requests = new String[] { "Twas brillig, and the slithy toves",
-                                               "Did gire and gymble in the wabe.",
-                                               "All mimsy were the borogroves,",
-                                               "And the mome raths outgrabe." };
+            ////Send some requests and receive the responses.
+            //String[] requests = new String[] { "Twas brillig, and the slithy toves",
+            //                                   "Did gire and gymble in the wabe.",
+            //                                   "All mimsy were the borogroves,",
+            //                                   "And the mome raths outgrabe." };
 
-            for (String request : requests) {
-                TextMessage requestMessage = session.createTextMessage(request);
-                requestMessage.setJMSReplyTo(responseQueue);
+            //for (String request : requests) {
+            //    TextMessage requestMessage = session.createTextMessage(request);
+            //    requestMessage.setJMSReplyTo(responseQueue);
 
-                messageProducer.send(requestMessage, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+            //    messageProducer.send(requestMessage, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
 
-                TextMessage responseMessage = (TextMessage) messageConsumer.receive(2000);
-                if (responseMessage != null) {
-                    System.out.println("[CLIENT] " + request + " ---> " + responseMessage.getText());
-                } else {
-                    System.out.println("[CLIENT] Response for '" + request +"' was not received within the timeout, exiting.");
-                    break;
-                }
-            }
+            //    TextMessage responseMessage = (TextMessage) messageConsumer.receive(2000);
+            //    if (responseMessage != null) {
+            //        System.out.println("[CLIENT] " + request + " ---> " + responseMessage.getText());
+            //    } else {
+            //        System.out.println("[CLIENT] Response for '" + request +"' was not received within the timeout, exiting.");
+            //        break;
+            //    }
+            //}
 
             connection.close();
         } catch (Exception exp) {
