@@ -50,19 +50,35 @@ public class HelloWorld {
             connection.start();
 
             Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-
             MessageProducer messageProducer = session.createProducer(queue);
-            MessageConsumer messageConsumer = session.createConsumer(queue);
 
-            TextMessage message = session.createTextMessage("Hello world!");
+            TextMessage message = session.createTextMessage("m1");
+            message.setStringProperty("color", "red");
+            message.setIntProperty("weight", 3);
             messageProducer.send(message, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
-            TextMessage receivedMessage = (TextMessage) messageConsumer.receive(2000L);
 
+            message = session.createTextMessage("m2");
+            message.setStringProperty("color", "red");
+            message.setIntProperty("weight", 7);
+            messageProducer.send(message, DeliveryMode.NON_PERSISTENT, Message.DEFAULT_PRIORITY, Message.DEFAULT_TIME_TO_LIVE);
+
+            MessageConsumer messageConsumer = session.createConsumer(queue, "color = 'yellow' OR weight > 5");
+
+            TextMessage receivedMessage = (TextMessage) messageConsumer.receive(2000L);
             if (receivedMessage != null) {
-                System.out.println(receivedMessage.getText());
+                System.out.println("Received message: " + receivedMessage.getText());
             } else {
                 System.out.println("No message received within the given timeout!");
             }
+
+            receivedMessage = (TextMessage) messageConsumer.receive(2000L);
+            if (receivedMessage != null) {
+                System.out.println("Received message: " + receivedMessage.getText());
+            } else {
+                System.out.println("No message received within the given timeout!");
+            }
+
+            Thread.sleep(Long.MAX_VALUE);
 
             connection.close();
         } catch (Exception exp) {
